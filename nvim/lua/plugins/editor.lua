@@ -30,7 +30,10 @@ return {
     event = { "BufReadPost", "BufNewFile" },
     main = "nvim-treesitter.configs",
     opts = {
-      ensure_installed = { "c", "cpp", "lua", "vim", "vimdoc", "bash", "cmake", "make", "markdown" },
+      ensure_installed = {
+        "c", "cpp", "lua", "vim", "vimdoc", "bash", "cmake", "make", "markdown", "markdown_inline",
+        "html", "css", "javascript", "typescript", "tsx", "json", "jsonc", "yaml", "toml",
+      },
       auto_install = true,
       highlight = { enable = true },
       indent = { enable = true },

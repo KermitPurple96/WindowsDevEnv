@@ -28,8 +28,16 @@ The installer is idempotent — safe to re-run.
 - **Neovim** (`Neovim.Neovim`)
 - **LLVM/clang** (`LLVM.LLVM`) — `clang`, `clang++`, `clangd`, `clang-format`, `lldb-dap`
 - **Git** (`Git.Git`)
+- **Node.js LTS** (`OpenJS.NodeJS.LTS`) — runtime for the web/JSON language servers
 - **VS Build Tools** (`Microsoft.VisualStudio.2022.BuildTools`, VCTools workload) — MSVC compiler/headers
 - **JetBrainsMono Nerd Font** (per-user)
+
+### Language support (LSP autocompletion + diagnostics)
+
+C, C++, Lua, HTML, CSS, Emmet, JavaScript, TypeScript / Node, JSON (with
+schemas), YAML (with schemas), and Bash — auto-installed via Mason on first
+launch. JSON/YAML get schema-aware completion (package.json, tsconfig, GitHub
+Actions, etc.) via SchemaStore.
 
 ## What it deploys
 

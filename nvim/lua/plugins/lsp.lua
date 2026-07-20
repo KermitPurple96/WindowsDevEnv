@@ -8,6 +8,7 @@ return {
       "williamboman/mason.nvim",
       "neovim/nvim-lspconfig",
       "hrsh7th/cmp-nvim-lsp",
+      "b0o/schemastore.nvim", -- JSON/YAML schemas (package.json, tsconfig, etc.)
     },
     config = function()
       require("mason").setup({ ui = { border = "rounded" } })
@@ -54,7 +55,17 @@ return {
       })
 
       require("mason-lspconfig").setup({
-        ensure_installed = { "clangd", "lua_ls" },
+        ensure_installed = {
+          "clangd",  -- C / C++
+          "lua_ls",  -- Lua
+          "html",    -- HTML
+          "cssls",   -- CSS
+          "emmet_ls",-- Emmet (HTML/CSS/JSX expansion)
+          "ts_ls",   -- JavaScript / TypeScript / Node
+          "jsonls",  -- JSON
+          "yamlls",  -- YAML
+          "bashls",  -- Bash / shell
+        },
         handlers = {
           function(server)
             require("lspconfig")[server].setup({ capabilities = capabilities })
@@ -72,6 +83,28 @@ return {
                 "--fallback-style=llvm",
               },
               init_options = { fallbackFlags = { "-std=c++17" } },
+            })
+          end,
+          ["jsonls"] = function()
+            require("lspconfig").jsonls.setup({
+              capabilities = capabilities,
+              settings = {
+                json = {
+                  schemas = require("schemastore").json.schemas(),
+                  validate = { enable = true },
+                },
+              },
+            })
+          end,
+          ["yamlls"] = function()
+            require("lspconfig").yamlls.setup({
+              capabilities = capabilities,
+              settings = {
+                yaml = {
+                  schemaStore = { enable = false, url = "" },
+                  schemas = require("schemastore").yaml.schemas(),
+                },
+              },
             })
           end,
           ["lua_ls"] = function()

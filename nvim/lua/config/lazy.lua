@@ -16,7 +16,7 @@ vim.opt.rtp:prepend(lazypath)
 
 require("lazy").setup({
   spec = { { import = "plugins" } },
-  install = { colorscheme = { "tokyonight" } },
+  install = { colorscheme = { "dracula" } },
   checker = { enabled = true, notify = false },
   ui = { border = "rounded" },
   git = { timeout = 300 }, -- big repos (nvim-treesitter) need more than the 120s default

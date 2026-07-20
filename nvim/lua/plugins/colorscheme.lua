@@ -1,23 +1,17 @@
--- Colorscheme: Tokyonight (moon variant). Transparent bg plays nicely
--- with Neovide's window blur/opacity.
+-- Colorscheme: Dracula (dark). Solid background so it stays properly dark;
+-- window-level transparency still comes from Neovide's opacity setting.
 return {
   {
-    "folke/tokyonight.nvim",
+    "Mofiqul/dracula.nvim",
     lazy = false,
     priority = 1000,
-    opts = {
-      style = "moon",
-      transparent = true,
-      styles = {
-        sidebars = "transparent",
-        floats = "transparent",
-        comments = { italic = true },
-        keywords = { italic = true },
-      },
-    },
-    config = function(_, opts)
-      require("tokyonight").setup(opts)
-      vim.cmd.colorscheme("tokyonight")
+    config = function()
+      require("dracula").setup({
+        transparent_bg = false,
+        italic_comment = true,
+      })
+      vim.o.background = "dark"
+      vim.cmd.colorscheme("dracula")
     end,
   },
 }

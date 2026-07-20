@@ -82,14 +82,10 @@ if vim.g.neovide then
   vim.g.neovide_cursor_animate_command_line = true
   vim.g.neovide_cursor_smooth_blink = true
 
-  -- *** Particle trail *** — the flashy bit.
-  -- Try: "railgun" | "torpedo" | "pixiedust" | "sonicboom" | "ripple" | "wireframe"
-  -- Set to "" to disable particles but keep the smooth glide.
-  vim.g.neovide_cursor_vfx_mode = "railgun"
-  vim.g.neovide_cursor_vfx_particle_lifetime = 1.2
-  vim.g.neovide_cursor_vfx_particle_density = 7.0
-  vim.g.neovide_cursor_vfx_particle_speed = 10.0
-  vim.g.neovide_cursor_vfx_opacity = 200.0
+  -- *** Particle trail *** — DISABLED (the "circles/shadow behind the cursor").
+  -- The cursor still glides smoothly; there just aren't particles anymore.
+  -- To re-enable, set one of: "railgun" | "torpedo" | "pixiedust" | "sonicboom" | "ripple" | "wireframe"
+  vim.g.neovide_cursor_vfx_mode = ""
 
   -- Live font resize: Ctrl+= bigger, Ctrl+- smaller, Ctrl+0 reset
   local function set_font_size(delta)

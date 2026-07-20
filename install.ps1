@@ -48,6 +48,7 @@ function Install-Winget($id, $extra) {
 Install-Winget "Neovim.Neovim"
 Install-Winget "LLVM.LLVM"
 Install-Winget "Git.Git"
+Install-Winget "OpenJS.NodeJS.LTS"  # runtime for HTML/CSS/JS/TS/JSON/YAML language servers
 if (-not $SkipBuildTools) {
   # VCTools workload = the actual MSVC C++ compiler/headers (big download).
   Install-Winget "Microsoft.VisualStudio.2022.BuildTools" @(

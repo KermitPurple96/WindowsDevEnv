@@ -1,0 +1,12 @@
+# Global default C/C++ style. Drop a .clang-format in any project
+# folder to override it there. See: clang-format --help
+BasedOnStyle: LLVM
+IndentWidth: 4
+TabWidth: 4
+UseTab: Never
+ColumnLimit: 100
+PointerAlignment: Left
+AllowShortFunctionsOnASingleLine: Empty
+AllowShortIfStatementsOnASingleLine: false
+BreakBeforeBraces: Attach
+SortIncludes: true

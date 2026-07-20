@@ -1,0 +1,8 @@
+# Neovide launcher settings.  https://neovide.dev/config-file.html
+# Font & cursor animations live in the Neovim config (options.lua),
+# so they're all editable in one place.
+
+maximized = true          # start maximized
+frame = "full"            # normal window decorations
+idle = true               # throttle rendering when unfocused (saves battery)
+theme = "dark"

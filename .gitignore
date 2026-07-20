@@ -1,0 +1,14 @@
+# Neovim runtime/data — regenerated on install, not tracked
+nvim/lazy-lock.json.bak
+*.bak
+
+# Build artifacts / temp
+*.exe
+*.o
+*.obj
+*.pdb
+*.ilk
+
+# OS
+Thumbs.db
+Desktop.ini

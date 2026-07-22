@@ -3,9 +3,10 @@
   One-shot setup for a Neovim + Neovide C/C++ dev environment on Windows.
 
 .DESCRIPTION
-  Installs the toolchain (Neovim, LLVM/clang, Git, VS Build Tools) via winget,
-  installs the JetBrainsMono Nerd Font, deploys the Neovim/Neovide configs from
-  this repo, and bootstraps all plugins. Safe to re-run (idempotent).
+  Installs the toolchain (Neovim, LLVM/clang, Git, Node LTS, VS Build Tools,
+  Claude Code) via winget, installs the JetBrainsMono and Hack Nerd Fonts,
+  deploys the Neovim/Neovide configs from this repo, and bootstraps all
+  plugins. Safe to re-run (idempotent).
 
 .NOTES
   Run from this repo's folder:   powershell -ExecutionPolicy Bypass -File .\install.ps1
@@ -49,6 +50,7 @@ Install-Winget "Neovim.Neovim"
 Install-Winget "LLVM.LLVM"
 Install-Winget "Git.Git"
 Install-Winget "OpenJS.NodeJS.LTS"  # runtime for HTML/CSS/JS/TS/JSON/YAML language servers
+Install-Winget "Anthropic.ClaudeCode"
 if (-not $SkipBuildTools) {
   # VCTools workload = the actual MSVC C++ compiler/headers (big download).
   Install-Winget "Microsoft.VisualStudio.2022.BuildTools" @(
@@ -71,33 +73,44 @@ if (Test-Path $llvm) {
   $env:Path = "$llvm;C:\Program Files\Git\cmd;" + $env:Path
 }
 
-# --- 3. JetBrainsMono Nerd Font (per-user, no admin) ------------------------
-if (-not $SkipFont) {
-  Info "Installing JetBrainsMono Nerd Font"
-  $already = Get-ChildItem "$env:LOCALAPPDATA\Microsoft\Windows\Fonts" -Filter "JetBrainsMonoNerdFont*" -ErrorAction SilentlyContinue
+# --- 3. Nerd Fonts (per-user, no admin) -------------------------------------
+# $Name is the nerd-fonts release asset name (Hack.zip, JetBrainsMono.zip); the
+# extracted files are named "<Name>NerdFont-*.ttf", which doubles as the
+# already-installed check.
+$NerdFontsVersion = "v3.2.1"
+
+function Install-NerdFont($Name) {
+  Info "Installing $Name Nerd Font"
+  $fontDir = "$env:LOCALAPPDATA\Microsoft\Windows\Fonts"
+  $already = Get-ChildItem $fontDir -Filter "${Name}NerdFont*" -ErrorAction SilentlyContinue
   if ($already) {
-    Ok "Nerd Font already installed"
-  } else {
-    $tmp = Join-Path $env:TEMP "jbmono-nf"
-    New-Item -ItemType Directory -Force -Path $tmp | Out-Null
-    $zip = Join-Path $tmp "JetBrainsMono.zip"
-    $url = "https://github.com/ryanoasis/nerd-fonts/releases/download/v3.2.1/JetBrainsMono.zip"
-    Invoke-WebRequest -Uri $url -OutFile $zip
-    Expand-Archive -Path $zip -DestinationPath "$tmp\extracted" -Force
-    $fontDir = "$env:LOCALAPPDATA\Microsoft\Windows\Fonts"
-    New-Item -ItemType Directory -Force -Path $fontDir | Out-Null
-    $regPath = "HKCU:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Fonts"
-    $n = 0
-    Get-ChildItem "$tmp\extracted" -Filter "*.ttf" | ForEach-Object {
-      $dest = Join-Path $fontDir $_.Name
-      Copy-Item $_.FullName $dest -Force
-      New-ItemProperty -Path $regPath -Name ($_.BaseName + " (TrueType)") -Value $dest -PropertyType String -Force | Out-Null
-      $n++
-    }
-    Ok "Installed $n Nerd Font files"
+    Ok "$Name Nerd Font already installed"
+    return
   }
+  $tmp = Join-Path $env:TEMP "nerdfont-$Name"
+  New-Item -ItemType Directory -Force -Path $tmp | Out-Null
+  $zip = Join-Path $tmp "$Name.zip"
+  $url = "https://github.com/ryanoasis/nerd-fonts/releases/download/$NerdFontsVersion/$Name.zip"
+  Invoke-WebRequest -Uri $url -OutFile $zip
+  Expand-Archive -Path $zip -DestinationPath "$tmp\extracted" -Force
+  New-Item -ItemType Directory -Force -Path $fontDir | Out-Null
+  $regPath = "HKCU:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Fonts"
+  $n = 0
+  Get-ChildItem "$tmp\extracted" -Filter "*.ttf" | ForEach-Object {
+    $dest = Join-Path $fontDir $_.Name
+    Copy-Item $_.FullName $dest -Force
+    New-ItemProperty -Path $regPath -Name ($_.BaseName + " (TrueType)") -Value $dest -PropertyType String -Force | Out-Null
+    $n++
+  }
+  Remove-Item $tmp -Recurse -Force -ErrorAction SilentlyContinue
+  Ok "Installed $n $Name Nerd Font files"
+}
+
+if (-not $SkipFont) {
+  Install-NerdFont "JetBrainsMono"
+  Install-NerdFont "Hack"
 } else {
-  Warn "Skipping font (-SkipFont)"
+  Warn "Skipping fonts (-SkipFont)"
 }
 
 # --- 4. Deploy configs ------------------------------------------------------
@@ -133,7 +146,7 @@ if (-not $SkipSync) {
     & $nvim --headless "+Lazy! sync" +qa
     Ok "Plugins installed"
   } else {
-    Warn "nvim.exe not found yet — open a NEW terminal and run 'neovide' to finish plugin install"
+    Warn "nvim.exe not found yet - open a NEW terminal and run 'neovide' to finish plugin install"
   }
 } else {
   Warn "Skipping plugin sync (-SkipSync)"

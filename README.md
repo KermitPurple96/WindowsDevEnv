@@ -20,7 +20,7 @@ The installer is idempotent — safe to re-run.
 | Flag | Effect |
 |------|--------|
 | `-SkipBuildTools` | Skip the large VS Build Tools download |
-| `-SkipFont` | Skip the Nerd Font install |
+| `-SkipFont` | Skip the Nerd Font installs |
 | `-SkipSync` | Skip the headless plugin bootstrap |
 
 ## What it installs
@@ -30,7 +30,8 @@ The installer is idempotent — safe to re-run.
 - **Git** (`Git.Git`)
 - **Node.js LTS** (`OpenJS.NodeJS.LTS`) — runtime for the web/JSON language servers
 - **VS Build Tools** (`Microsoft.VisualStudio.2022.BuildTools`, VCTools workload) — MSVC compiler/headers
-- **JetBrainsMono Nerd Font** (per-user)
+- **Claude Code** (`Anthropic.ClaudeCode`)
+- **JetBrainsMono** and **Hack** Nerd Fonts (per-user)
 
 ### Language support (LSP autocompletion + diagnostics)
 

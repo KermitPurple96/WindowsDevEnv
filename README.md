@@ -31,6 +31,9 @@ The installer is idempotent — safe to re-run.
 - **Node.js LTS** (`OpenJS.NodeJS.LTS`) — runtime for the web/JSON language servers
 - **VS Build Tools** (`Microsoft.VisualStudio.2022.BuildTools`, VCTools workload) — MSVC compiler/headers
 - **Claude Code** (`Anthropic.ClaudeCode`)
+- **ripgrep** (`BurntSushi.ripgrep.MSVC`) — required by Telescope's `<leader>fg` live grep
+- **fd** (`sharkdp.fd`) — faster `<leader>ff` file finding
+- **StyLua** (`JohnnyMorganz.StyLua`) — Lua formatter used by conform.nvim
 - **JetBrainsMono** and **Hack** Nerd Fonts (per-user)
 
 ### Language support (LSP autocompletion + diagnostics)

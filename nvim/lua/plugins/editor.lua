@@ -26,6 +26,12 @@ return {
   -- Treesitter — better syntax highlighting & indentation
   {
     "nvim-treesitter/nvim-treesitter",
+    -- Pinned to master: the `main` branch is a rewrite that removed
+    -- nvim-treesitter.configs along with ensure_installed/highlight/indent.
+    -- Without this pin lazy tracks `main`, the config below throws
+    -- "module 'nvim-treesitter.configs' not found", and treesitter silently
+    -- never initializes - no highlighting, no parsers installed.
+    branch = "master",
     build = ":TSUpdate",
     event = { "BufReadPost", "BufNewFile" },
     main = "nvim-treesitter.configs",

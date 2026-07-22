@@ -51,6 +51,11 @@ Install-Winget "LLVM.LLVM"
 Install-Winget "Git.Git"
 Install-Winget "OpenJS.NodeJS.LTS"  # runtime for HTML/CSS/JS/TS/JSON/YAML language servers
 Install-Winget "Anthropic.ClaudeCode"
+# Telescope's live_grep (<leader>fg) shells out to ripgrep and fails without it;
+# conform.nvim's Lua formatter is stylua. fd just makes find_files faster.
+Install-Winget "BurntSushi.ripgrep.MSVC"
+Install-Winget "sharkdp.fd"
+Install-Winget "JohnnyMorganz.StyLua"
 if (-not $SkipBuildTools) {
   # VCTools workload = the actual MSVC C++ compiler/headers (big download).
   Install-Winget "Microsoft.VisualStudio.2022.BuildTools" @(

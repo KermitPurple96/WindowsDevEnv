@@ -1,5 +1,58 @@
-# Neovim runtime/data — regenerated on install, not tracked
-nvim/lazy-lock.json.bak
+# ---------------------------------------------------------------------------
+# This repo holds the *source* config; install.ps1 copies nvim/ to
+# %LOCALAPPDATA%\nvim. If you instead symlink nvim/ into place (or point
+# NVIM_APPNAME here), Neovim will write its data/state/cache alongside the
+# config — the rules below keep that out of the repo.
+#
+# NOTE: nvim/lazy-lock.json is deliberately TRACKED. It pins plugin commits so
+# installs are reproducible; nothing here should ever ignore it.
+# ---------------------------------------------------------------------------
+
+# Plugin managers / package payloads (stdpath("data"))
+lazy/
+mason/
+site/pack/
+pack/*/start/
+pack/*/opt/
+
+# Treesitter compiled parsers
+parser/
+parser-info/
+
+# Neovim state: shada holds command/search history, registers and file marks —
+# never commit it, it can carry anything you typed in a buffer or on :.
+*.shada
+*.shada.tmp.*
+shada/
+undo/
+swap/
+backup/
+view/
+sessions/
+*.swp
+*.swo
+
+# Logs
+*.log
+lsp.log
+mason.log
+luasnip.log
+
+# Downloaded spellfiles
+spell/*.spl
+spell/*.sug
+
+# Distro/plugin-generated state files
+lazyvim.json
+
+# Local overrides — machine-specific, not for the repo
+nvim/lua/config/local.lua
+nvim/lua/plugins/local.lua
+.nvim.lua
+.nvimrc
+.exrc
+
+# Backups made by install.ps1's Deploy()
 *.bak
 
 # Build artifacts / temp
@@ -8,7 +61,11 @@ nvim/lazy-lock.json.bak
 *.obj
 *.pdb
 *.ilk
+compile_commands.json
+.cache/
+build/
 
-# OS
+# Editor/OS cruft
+.DS_Store
 Thumbs.db
 Desktop.ini

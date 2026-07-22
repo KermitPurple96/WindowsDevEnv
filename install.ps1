@@ -152,6 +152,49 @@ if (-not $SkipSync) {
   Warn "Skipping plugin sync (-SkipSync)"
 }
 
+# --- 6. Verify the C/C++ toolchain actually works ---------------------------
+# winget reports success once the Build Tools *bootstrapper* is registered,
+# even when the VCTools workload never landed - and it then refuses to reinstall
+# ("no upgrade available"), so the gap is invisible and unfixable by re-running.
+# clang targets the MSVC ABI on Windows, so with no MSVC/SDK headers every
+# compile fails on #include <stdio.h>. Compile something real rather than
+# trusting exit codes.
+function Test-CppToolchain {
+  $cc = Get-Command clang++ -ErrorAction SilentlyContinue
+  if (-not $cc) { return $false }
+  $tmp = Join-Path $env:TEMP "nvim-cpp-toolcheck"
+  New-Item -ItemType Directory -Force -Path $tmp | Out-Null
+  $src = Join-Path $tmp "check.cpp"
+  # Pulls in both the MSVC STL (iostream) and the Windows SDK (via the CRT).
+  Set-Content -Path $src -Encoding ascii -Value @'
+#include <iostream>
+int main() { std::cout << "ok"; }
+'@
+  # No 2>&1 here: $ErrorActionPreference is Stop, and redirecting a native
+  # command's stderr in PS 5.1 raises NativeCommandError and aborts the script.
+  & $cc.Source -std=c++17 $src -o (Join-Path $tmp "check.exe")
+  $code = $LASTEXITCODE
+  Remove-Item $tmp -Recurse -Force -ErrorAction SilentlyContinue
+  return ($code -eq 0)
+}
+
+Info "Verifying the C/C++ toolchain"
+$ToolchainOk = Test-CppToolchain
+
 Write-Host ""
-Write-Host "Done! Launch with:  neovide" -ForegroundColor Green
-Write-Host "First launch finishes any remaining plugin/LSP setup automatically." -ForegroundColor Green
+if ($ToolchainOk) {
+  Ok "clang++ compiles and links"
+  Write-Host "Done! Launch with:  neovide" -ForegroundColor Green
+  Write-Host "First launch finishes any remaining plugin/LSP setup automatically." -ForegroundColor Green
+} else {
+  Warn "SETUP INCOMPLETE - clang cannot compile a C++ program (see the error above)."
+  Write-Host ""
+  Write-Host "The MSVC headers/libs are missing, so <F5> will fail on every file." -ForegroundColor Yellow
+  Write-Host "Add the VCTools workload from an ELEVATED PowerShell:" -ForegroundColor Yellow
+  Write-Host ""
+  Write-Host '  & "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\setup.exe" modify ``' -ForegroundColor Cyan
+  Write-Host '      --installPath "${env:ProgramFiles(x86)}\Microsoft Visual Studio\2022\BuildTools" ``' -ForegroundColor Cyan
+  Write-Host '      --add Microsoft.VisualStudio.Workload.VCTools --includeRecommended --quiet --norestart' -ForegroundColor Cyan
+  Write-Host ""
+  Write-Host "Then open a NEW terminal and re-run this script to re-verify." -ForegroundColor Yellow
+}

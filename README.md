@@ -26,6 +26,7 @@ The installer is idempotent — safe to re-run.
 ## What it installs
 
 - **Neovim** (`Neovim.Neovim`)
+- **Neovide** (`Neovide.Neovide`) — GPU-accelerated Neovim frontend
 - **LLVM/clang** (`LLVM.LLVM`) — `clang`, `clang++`, `clangd`, `clang-format`, `lldb-dap`
 - **Git** (`Git.Git`)
 - **Node.js LTS** (`OpenJS.NodeJS.LTS`) — runtime for the web/JSON language servers

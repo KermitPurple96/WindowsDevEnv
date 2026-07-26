@@ -47,6 +47,7 @@ function Install-Winget($id, $extra) {
 }
 
 Install-Winget "Neovim.Neovim"
+Install-Winget "Neovide.Neovide"
 Install-Winget "LLVM.LLVM"
 Install-Winget "Git.Git"
 Install-Winget "OpenJS.NodeJS.LTS"  # runtime for HTML/CSS/JS/TS/JSON/YAML language servers

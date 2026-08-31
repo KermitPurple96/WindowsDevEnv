@@ -92,9 +92,19 @@ if ($Diagnose) {
         } else { Err "$p MISSING" }
     }
 
-    $ini = Join-Path $root "x64dbg.ini"
-    if (Test-Path $ini) { Ok "x64dbg.ini present (x64dbg has run from here)" }
-    else { Warn "No x64dbg.ini -> this x64dbg has never been launched. Check you aren't opening a different copy." }
+    # x64dbg only writes x64dbg.ini on exit, so a running instance legitimately
+    # has none yet. Only treat a missing ini as "never launched" when nothing is
+    # actually running out of this folder.
+    $running = Get-Process -Name x64dbg, x32dbg -ErrorAction SilentlyContinue |
+               Where-Object { $_.Path -and $_.Path.StartsWith($root, "OrdinalIgnoreCase") }
+    if (Test-Path (Join-Path $root "x64dbg.ini")) {
+        Ok "x64dbg.ini present (x64dbg has run from here)"
+    } elseif ($running) {
+        Ok "x64dbg running from this folder (PID $($running.Id -join ', ')); the .ini is written on exit"
+    } else {
+        Warn "No x64dbg.ini and nothing running from here -> this x64dbg has never been launched."
+        Warn "Check you aren't opening a different copy."
+    }
 
     # Printed REDACTED on purpose: mcp_config.json holds the Bearer token, and
     # diagnostic output ends up pasted into issues and chats.
@@ -222,28 +232,39 @@ foreach ($p in @($dp64, $dp32)) {
 if ($fail) { throw "Incomplete deployment" }
 
 # =========================================================== 6. Token + Claude
+# Each architecture runs its own plugin instance with its OWN token, in its own
+# mcp_config.json. Reusing the x64 token for the x32 server yields a silent 401,
+# so everything below is derived from -Port.
+if ($Port -eq 9095) { $Arch = "x32"; $Name = "x32dbg" } else { $Arch = "x64"; $Name = "x64dbg" }
+$ArchDir = Join-Path $Root $Arch
+$CfgPath = Join-Path $ArchDir "mcp_config.json"
+
 if ($SkipClaude) {
     Write-Host ""
-    Ok "Done. Launch $Root\x64\x64dbg.exe and check the Log tab."
+    Ok "Done. Launch $ArchDir\$Name.exe and check the Log tab."
     exit 0
 }
 
-$exe = Join-Path $Root "x64\x64dbg.exe"
-Info "Launching $exe so the plugin generates its token..."
-Start-Process -FilePath $exe -WorkingDirectory (Join-Path $Root "x64")
+if (Test-Path $CfgPath) {
+    # The plugin has already run once for this architecture; no need to spawn
+    # another debugger window.
+    Ok "$Arch\mcp_config.json already exists, skipping launch"
+    $cfg = Get-Item $CfgPath
+} else {
+    $exe = Join-Path $ArchDir "$Name.exe"
+    Info "Launching $exe so the $Arch plugin generates its token..."
+    Start-Process -FilePath $exe -WorkingDirectory $ArchDir
 
-$cfg = $null
-$deadline = (Get-Date).AddSeconds(90)
-while ((Get-Date) -lt $deadline) {
-    $cfg = Get-ChildItem -Path $Root -Recurse -Filter "mcp_config.json" -ErrorAction SilentlyContinue |
-           Select-Object -First 1
-    if ($cfg) { break }
-    Start-Sleep -Seconds 2
+    $deadline = (Get-Date).AddSeconds(90)
+    while ((Get-Date) -lt $deadline) {
+        if (Test-Path $CfgPath) { $cfg = Get-Item $CfgPath; break }
+        Start-Sleep -Seconds 2
+    }
 }
 
 if (-not $cfg) {
-    Err "The plugin did not generate mcp_config.json within 90s."
-    Warn "Open x64dbg's Log tab: no [PLUGIN] line at all means the .dp64 isn't loading."
+    Err "The $Arch plugin did not generate mcp_config.json within 90s."
+    Warn "Open $Name's Log tab: no [PLUGIN] line at all means the plugin isn't loading."
     Warn "Re-run this script with -Diagnose for details."
     exit 1
 }
@@ -273,7 +294,7 @@ if ($bindProp -and $bindProp.Value -ne $BindAddress) {
 }
 
 $url = "http://${BindAddress}:${Port}/"
-Info "Registering the MCP server with Claude Code -> $url"
+Info "Registering MCP server '$Name' with Claude Code -> $url"
 
 $claudeJson = Join-Path $env:USERPROFILE ".claude.json"
 if (Test-Path $claudeJson) {
@@ -284,15 +305,15 @@ if (Test-Path $claudeJson) {
 
 $claude = Get-Command claude -ErrorAction SilentlyContinue
 if ($claude) {
-    & claude mcp remove x64dbg --scope user 2>$null | Out-Null
-    & claude mcp add --scope user --transport http x64dbg $url --header "Authorization: Bearer $token"
-    if ($?) { Ok "MCP server 'x64dbg' registered. Restart Claude Code and check /mcp" }
+    & claude mcp remove $Name --scope user 2>$null | Out-Null
+    & claude mcp add --scope user --transport http $Name $url --header "Authorization: Bearer $token"
+    if ($?) { Ok "MCP server '$Name' registered. Restart Claude Code and check /mcp" }
 } else {
     Warn "'claude' is not on PATH. Add this to $claudeJson at the ROOT level"
     Warn "(a sibling of 'projects', not inside it):"
     Write-Host ""
     Write-Host "  `"mcpServers`": {"
-    Write-Host "    `"x64dbg`": {"
+    Write-Host "    `"$Name`": {"
     Write-Host "      `"type`": `"http`","
     Write-Host "      `"url`": `"$url`","
     Write-Host "      `"headers`": { `"Authorization`": `"Bearer <TOKEN>`" }"

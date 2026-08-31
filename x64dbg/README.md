@@ -71,6 +71,21 @@ No copy-pasting the token by hand. If `claude` isn't on `PATH`, the script
 prints the JSON structure to add — with the token **redacted** — and tells you
 which file holds it.
 
+### Registering x32dbg too
+
+**Each architecture runs its own plugin instance with its own token**, in its
+own `mcp_config.json`. Reusing the x64 token for the x32 server gets you a
+silent `401`. Everything the script does is derived from `-Port`, so:
+
+```powershell
+# after the x64 install, register the 32-bit debugger as well
+.\setup-x64dbg.ps1 -SkipX64dbg -SkipPlugin -SkipTheme -Port 9095
+```
+
+That launches `x32dbg.exe` if it has never run (so the plugin can generate its
+token), reads `release\x32\mcp_config.json`, and registers it under the name
+`x32dbg`. Useful for 32-bit samples and implants.
+
 ### Manual configuration
 
 In `%USERPROFILE%\.claude.json`, at the **root level** — a sibling of

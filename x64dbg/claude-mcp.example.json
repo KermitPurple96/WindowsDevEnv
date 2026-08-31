@@ -1,0 +1,27 @@
+{
+  "_comment": [
+    "Template. Copy the 'mcpServers' block into %USERPROFILE%\\.claude.json",
+    "at the ROOT level: a sibling of 'projects', not inside it (in there it",
+    "would only apply to a single project).",
+    "Replace <TOKEN> with the value the plugin writes to mcp_config.json,",
+    "or let setup-x64dbg.ps1 do it for you.",
+    "NEVER commit this file with a real token in it."
+  ],
+
+  "mcpServers": {
+    "x64dbg": {
+      "type": "http",
+      "url": "http://127.0.0.1:9094/",
+      "headers": {
+        "Authorization": "Bearer <TOKEN>"
+      }
+    },
+    "x32dbg": {
+      "type": "http",
+      "url": "http://127.0.0.1:9095/",
+      "headers": {
+        "Authorization": "Bearer <TOKEN>"
+      }
+    }
+  }
+}

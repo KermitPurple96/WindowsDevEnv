@@ -52,6 +52,25 @@ Actions, etc.) via SchemaStore.
 | `neovide/config.toml` | `%APPDATA%\neovide\config.toml` |
 | `.clang-format` | `%USERPROFILE%\.clang-format` |
 
+## Reversing: x64dbg + MCP
+
+A separate installer for an AI-controllable reversing environment. Deploys
+x64dbg, the [x64dbg-MCP-Server](https://github.com/duty1g/x64dbg-mcp-server)
+plugin and the [Dracula](https://github.com/CX330Blake/x64dbg-theme-dracula)
+theme, then registers the MCP server with Claude Code — reading the auth token
+for you, so there is no manual copy-paste step.
+
+```powershell
+cd x64dbg
+powershell -ExecutionPolicy Bypass -File .\setup-x64dbg.ps1
+```
+
+Flags, troubleshooting and security notes in [`x64dbg/README.md`](x64dbg/README.md).
+
+> The plugin binds to `0.0.0.0` over plain HTTP by default and stores its Bearer
+> token in cleartext. The script forces `127.0.0.1`, and that folder's
+> `.gitignore` blocks `mcp_config.json` and `.claude.json`.
+
 ## Key bindings (leader = `Space`)
 
 ### Edit / navigate

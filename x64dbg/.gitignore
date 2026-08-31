@@ -1,0 +1,14 @@
+# The MCP plugin's Bearer token lives here in cleartext. Never commit it.
+mcp_config.json
+
+# Claude Code config and its backups carry Authorization headers in cleartext
+.claude.json
+.claude.json.bak*
+*.bak-*
+
+# Local install artifacts, in case someone clones this inside an x64dbg tree
+release/
+x64dbg.ini
+*.dp32
+*.dp64
+*.zip
